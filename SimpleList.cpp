@@ -1,20 +1,7 @@
 
 
 #include "SimpleList.h"
-#include <type_traits>  
-
-
-template <class U>
-void destroyElement(U) {
-  
-}
-
-
-template <class U>
-void destroyElement(U* element) {
-  delete element;
-}
-
+#include <type_traits>   
 
 template <class T>
 SimpleList<T>::SimpleList() {
@@ -26,12 +13,15 @@ SimpleList<T>::SimpleList() {
 template <class T>
 SimpleList<T>::~SimpleList() {
 
-  for (int i = 0; i < numElements; i++) {
-    destroyElement(elements[i]);
+  if constexpr (std::is_pointer<T>::value) {
+    for (int i = 0; i < numElements; i++) {
+      delete elements[i];
+    }
   }
 
   delete[] elements;
 }
+
 
 template <class T>
 T SimpleList<T>::at(int index) const {
@@ -92,10 +82,14 @@ void SimpleList<T>::remove(int index) {
   }
 
 
+  if constexpr (std::is_pointer<T>::value) {
+    delete elements[index];
+  }
+
+  
   for (int i = index; i < numElements - 1; i++) {
     elements[i] = elements[i + 1];
   }
-
 
   numElements--;
 }
